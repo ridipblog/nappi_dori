@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/product-lists', [ProductController::class, 'productLists']);
 
 // ------------- start middleware grouping routes ------------
-Route::group(['middleware' => ['protect_user']], function () {
+Route::group(['middleware' => ['protect_user:user_guard']], function () {
     // -------------- add to card route ----------------
     Route::post('/add-card', [ProductController::class, 'addCard']);
 });

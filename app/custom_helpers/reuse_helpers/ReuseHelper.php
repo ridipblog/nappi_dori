@@ -1,6 +1,8 @@
 <?php
 
 namespace  App\custom_helpers\reuse_helpers;
+
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -33,6 +35,12 @@ class ReuseHelper
             $error_message
         );
         return $validate;
+    }
+    // --------------- delete file form storage ----------------------
+    public static function removeFormStorage($file){
+        if(isset($file) ? Storage::exists($file) : false){
+            Storage::delete($file);
+        }
     }
 
 }

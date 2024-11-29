@@ -28,3 +28,9 @@ require __DIR__ . '/user_auth_routes.php';
 // ------------------- start product pages routes ------------
 require __DIR__ . '/product_routes.php';
 // ------------------- end product pages routes ------------
+
+// ----------------- start admin routes -------------
+Route::group(['prefix' => 'admin'], function () {
+    require __DIR__ . '/admin/manage_products_routes.php';
+});
+// ----------------- end admin routes -----------------

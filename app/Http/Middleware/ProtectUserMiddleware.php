@@ -14,14 +14,14 @@ class ProtectUserMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next,$guard='user_guard'): Response
     {
         $auth_res = [
             'message' => null,
             'status' => 400
         ];
         try {
-            if (!$request->user('user_guard') || $request->user('user_guard')->active != 1) {
+            if (!$request->user('user_guard') || $request->user($guard)->active != 1) {
                 return response()->json(['message' => 'Your are not logged in ', 'status' => 400]);
             }
         } catch (Exception $err) {
