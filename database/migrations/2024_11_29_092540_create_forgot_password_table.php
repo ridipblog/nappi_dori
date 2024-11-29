@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('registered_users', function (Blueprint $table) {
+        Schema::create('forgot_password', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
             $table->string('email')->unique();
-            $table->string('password');
-            $table->integer('active')->default(1)->comment('1 is active , 0 deactived');
+            $table->integer('otp');
+            $table->dateTime('expire_time');
+            $table->integer('is_used')->default(1)->comment('1 for no used , 2 for already used');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('registered_users');
+        Schema::dropIfExists('forgot_password');
     }
 };

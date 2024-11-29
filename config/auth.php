@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\AuthModel\RegistertedUserModel;
+
 return [
 
     /*
@@ -40,6 +42,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'user_guard'=>[
+            'driver'=>'passport',
+            'provider'=>'user_provider'
+        ]
     ],
 
     /*
@@ -64,6 +70,10 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
+        'user_provider'=>[
+            'driver'=>'eloquent',
+            'model'=>RegistertedUserModel::class
+        ]
 
         // 'users' => [
         //     'driver' => 'database',
