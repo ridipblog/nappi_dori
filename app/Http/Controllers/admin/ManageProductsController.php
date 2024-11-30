@@ -24,8 +24,8 @@ class ManageProductsController extends Controller
         $incomming_inputs = [
             'product_name' => 'required',
             'product_desc' => 'required',
-            'price' => 'integer',
-            'discount_price' => 'required|integer',
+            'actual_price' => 'required|integer',
+            'discount_amount' => 'integer|min:1|max:100',
             'total_stock' => 'integer',
             'out_of_stock' => 'integer',
             'category_id' => 'integer',
@@ -38,14 +38,20 @@ class ManageProductsController extends Controller
         } else {
             $res_data['status'] = 401;
             try {
+                $purchase_amount=$request->actual_price;
+                if ($request->discount_amount) {
+                    $purchase_amount = ($request->actual_price * $request->discount_amount) / 100;
+                    $purchase_amount = number_format(($request->actual_price - $purchase_amount), 2);
+                }
                 DB::beginTransaction();
                 $save_update_product = ProductsModel::updateOrCreate([
                     'id' => $request->product_id ? Crypt::decryptString($request->product_id) : null
                 ], [
                     'product_name' => $request->product_name,
                     'product_desc' => $request->product_desc,
-                    'price' => $request->price,
-                    'discount_price' => $request->discount_price,
+                    'actual_price' =>  $request->actual_price,
+                    'purchase_price' => $purchase_amount,
+                    'discount_amount' => $request->discount_amount,
                     'total_stock' => $request->total_stock,
                     'out_of_stock' => $request->out_of_stock ?? 1,
                     'category_id' => $request->category_id ?? 0,

@@ -18,7 +18,7 @@ class ReuseHelper
             'required' => ':attribute is required field !',
             'integer' => ':attribute is only number format !',
             'regex' => 'phone number must be 10 digit ',
-            'max' => ':attribute  size only 5 megabytes',
+            'max' => ':attribute  size is not valid ',
             'mimes' => ':attribute file type is not valid ',
             'email' => 'Please enter a valid email',
             'confirmed' => ':attribute is does not match with confirmation',

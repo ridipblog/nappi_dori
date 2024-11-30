@@ -6,3 +6,7 @@ $categories = [
     '3' => 'accessories',
     '5' => 'valentine'
 ];
+$filter=[
+    'less_500',
+    'less_1000'
+]

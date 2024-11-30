@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('product_name')->nullable();
             $table->text('product_desc')->nullable();
-            $table->decimal('price',10,2)->nullable();
-            $table->decimal('discount_price',10,2)->nullable();
+            $table->decimal('actual_price',10,2)->nullable();
+            $table->decimal('purchase_price',10,2)->nullable();
+            $table->integer('discount_amount')->nullable();
             $table->integer('total_stock')->nullable();
             $table->integer('out_of_stock')->default(1)->comment('1 in stock and 0 out of stock');
             $table->integer('category_id')->default(0);

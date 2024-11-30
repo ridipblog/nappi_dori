@@ -20,7 +20,7 @@ class ProductController extends Controller
             'message' => null,
             'status' => 400,
             'product_lists' => null,
-            'pages'=>0
+            'pages' => 0
         ];
         try {
             $page = ($request->input('page') ?? 0) * 10;
@@ -28,14 +28,22 @@ class ProductController extends Controller
             if ($request->input('category_id')) {
                 $main_query->where('category_id', $request->input('category_id'));
             }
-            $pages=$main_query->count() / 10;
+            $pages = $main_query->count() / 10;
             $main_query->skip($page)->take(10);
             $res_data['product_lists'] = $main_query->get()->pluck('id');
-            $res_data['pages']=$pages;
+            $res_data['pages'] = $pages;
         } catch (Exception $err) {
             $res_data['message'] = "Server error please try later !";
         }
         return response()->json(['res_data' => $res_data]);
+    }
+    // ---------------- get select product ------------------
+    public function getProduct(Request $request)
+    {
+        $res_data = [
+            'message' => null,
+            'status' => 400
+        ];
     }
     // ------------------- product add card ----------------
     public function addCard(Request $request)
