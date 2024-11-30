@@ -27,7 +27,8 @@ class ReuseHelper
             'array' => ':attribute is array type',
             'required_if' => ':attribute is require field !',
             'exists' => ':attribute is not found in database !',
-            'phone.exists' => 'phone number is not exists ,please register your number'
+            'phone.exists' => 'phone number is not exists ,please register your number',
+            'min'=>':attribute is must be atleast 1'
         ];
         $validate = Validator::make(
             $request->all(),

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('product_id');
-            $table->decimal('price_at_purchase',10,2);
+            $table->decimal('price_at_purchase',10,2)->nullable();
             $table->integer('total_item');
             $table->integer('cart_status')->default(0)->comment('0 still in cart , 1 update to purchase,2 remove form cart');
             $table->integer('purchase_status')->default(0)->comment('0 still in not purchase,1 purchase item');
