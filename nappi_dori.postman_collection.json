@@ -1,0 +1,150 @@
+{
+	"info": {
+		"_postman_id": "fde9397a-9d6d-493a-8d18-7969941724a1",
+		"name": "nappi_dori",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15669196"
+	},
+	"item": [
+		{
+			"name": "registration_api",
+			"request": {
+				"method": "POST",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "login_api",
+			"request": {
+				"method": "POST",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "forgot-password-api",
+			"request": {
+				"method": "POST",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "set-new-password-api",
+			"request": {
+				"method": "POST",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "add-card-api",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/api/add-card",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"add-card"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "save-or-update-products-api",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "product_name",
+							"value": "product 8",
+							"type": "text"
+						},
+						{
+							"key": "product_desc",
+							"value": "desc 8",
+							"type": "text"
+						},
+						{
+							"key": "price",
+							"value": "500",
+							"type": "text"
+						},
+						{
+							"key": "discount_price",
+							"value": "200",
+							"type": "text"
+						},
+						{
+							"key": "item_photo",
+							"type": "file",
+							"src": "postman-cloud:///1ee9ce1e-b51b-4800-a831-bb7cb5a8bb0a"
+						},
+						{
+							"key": "api_type",
+							"value": "save",
+							"type": "text"
+						},
+						{
+							"key": "product_id",
+							"value": "eyJpdiI6IkhTL2JqQ2JTdHl0VjJmTGI0NmxaQlE9PSIsInZhbHVlIjoicFJtQUN1UzFzT0RHcWVGWmxqTExsdz09IiwibWFjIjoiMTg1NGUyMTJhZDdhODA2Y2EzY2E1OGRmYmE1MzMzMWI2NDgyMDBhNzU2NTY3MzU2MTcyNjA0YzlmMTYyODMzZCIsInRhZyI6IiJ9",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "category_id",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "out_of_stock",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "total_stock",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/admin/save-or-update-products",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"admin",
+						"save-or-update-products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "product-lists",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}
