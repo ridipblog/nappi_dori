@@ -4,6 +4,7 @@ namespace App\Models\Products;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 
 class ProductsModel extends Model
 {
@@ -20,4 +21,15 @@ class ProductsModel extends Model
         'category_id',
         'item_photo',
     ];
+    protected $encrypted=false;
+    public function getIdAttribute($value){
+        return $this->encrypted ? Crypt::encryptString($value) : $value;
+    }
+    public function enabledEncryption(){
+        $this->encrypted=true;
+        return $this;
+    }
+    public function user_add_items(){
+        return $this->hasMany(USerAddItemsModel::class,'product_id');
+    }
 }

@@ -9,4 +9,4 @@ $categories = [
 $filter=[
     'less_500',
     'less_1000'
-]
+];
