@@ -1,0 +1,101 @@
+<?php
+
+// ---------- buy cart product ---------------
+public function buyerProcess(Request $request)
+{
+    $res_data = [
+        'message' => null,
+        'status' => 400,
+        'is_confirmation' => false
+    ];
+    $incomming_inputs = [
+        'orders' => ['required', 'array'],
+        'number_of_items' => ['required', 'array', new BuyperProcessRule('not_in_arr')],
+
+    ];
+    $validate = ReuseHelper::validateIncomingData($request, $incomming_inputs);
+    if ($validate->fails()) {
+        $res_data['message'] = $validate->errors()->all();
+    } else {
+        $res_data['status'] = 201;
+        if ((count($request->orders) == count($request->number_of_items))) {
+            try {
+                $logged_user = Auth::guard('user_guard')->user();
+                $order_ids = array_map(fn($order) => intval(Crypt::decryptString($order)), $request->orders);
+                $orders_details = USerAddItemsModel::query()->with(['products' => function ($query) {
+                    $query->select('id', 'actual_price', 'purchase_price', 'total_stock', 'out_of_stock');
+                }])
+                    ->where('user_id', $logged_user->id)
+                    ->whereIn('id', $order_ids)
+                    ->whereHas('products', function ($query) {})
+                    ->select('id', 'user_id', 'product_id', 'total_item')
+                    ->get();
+                $restrick_orders = [];
+                $process_orders = [
+                    'add_orders' => [],
+                    'add_orders_ids' => []
+                ];
+                $cases = null;
+                // $product_ids = $orders_details->groupBy('product_id')->map(function ($group) {
+                //     return $group->sum('total_item');
+                // });
+                $grouping_order_ids = [];
+                // foreach ($order_ids as $order_key => $order_value) {
+                //     $current_order_details = $orders_details->firstWhere('id', $order_value);
+                //     in_array($current_order_details->product_id ?? null, array_keys($grouping_order_ids)) ? $grouping_order_ids[$current_order_details->product_id] += $request->number_of_items[$order_key] : $grouping_order_ids[$current_order_details->product_id] = $request->number_of_items[$order_key];
+                // }
+                foreach ($order_ids as $order_key => $order_value) {
+                    $current_order_details = $orders_details->firstWhere('id', $order_value);
+                    in_array($current_order_details->product_id ?? null, array_keys($grouping_order_ids)) ? $grouping_order_ids[$current_order_details->product_id] += $request->number_of_items[$order_key] : $grouping_order_ids[$current_order_details->product_id] = $request->number_of_items[$order_key];
+                    [$message, $available_stock, $do_process] = ProductHelper::checkProductAvaiblity($current_order_details->products ?? null, $grouping_order_ids[$current_order_details->product_id] ?? "true",$request->number_of_items[$order_key]);
+                    if (!$do_process) {
+                        $restrick_orders[] = [
+                            'order_key' => $order_key,
+                            'available_stock' => $available_stock,
+                            'stock_message' => $message
+                        ];
+                        $res_data['is_confirmation'] = true;
+                    } else {
+                        $cases .= "WHEN ? THEN ? ";
+                        $process_orders['add_orders'][] = intval($order_value);
+                        $process_orders['add_orders'][] = $request->number_of_items[$order_key];
+                        $process_orders['add_orders_ids'][] = $order_value;
+                    }
+                }
+                $res_data['grouping_order_ids'] = $grouping_order_ids;
+                if ($res_data['is_confirmation'] ? true : true) {
+                    $condition_order_ids = implode(',', array_fill(0, count($process_orders['add_orders_ids']), '?'));
+                    $process_orders['add_orders'] = array_merge($process_orders['add_orders'], $process_orders['add_orders_ids']);
+                    $res_data['process_orders'] = $process_orders['add_orders'];
+                    $sql = "UPDATE user_add_items SET total_item = CASE id " . $cases . " END WHERE id IN ($condition_order_ids)";
+                    // DB::update($sql,$process_orders);
+                }
+                // $data = [
+                //     ['id' => 1, 'total_item' => 1],
+                //     ['id' => 2, 'total_item' => 2],
+                // ];
+                // $params = [];
+                // $cases = null;
+                // foreach ($data as $values) {
+                //     $cases .= "WHEN ? THEN ? ";
+                //     $params[] = $values['id'];
+                //     $params[] = $values['total_item'];
+                //     $ids[] = $values['id'];
+                // }
+                // $idsPlaceholder = implode(',', array_fill(0, count($ids), '?'));
+                // $res_data['ids']=$idsPlaceholder;
+                // $params = array_merge($params, $ids);
+                // $sql = "UPDATE user_add_items SET total_item = CASE id " . $cases . " END WHERE id IN ($idsPlaceholder)";
+                // DB::update($sql, $params);
+                $res_data['stock_report'] = $restrick_orders;
+                $res_data['order_ids'] = $order_ids;
+            } catch (Exception $err) {
+                $res_data['message'] = "Server error please try later !";
+                $res_data['message'] = $err->getMessage();
+            }
+        } else {
+            $res_data['message'] = "Form items not properly sets !";
+        }
+    }
+    return response()->json(['res_data' => $res_data]);
+}
