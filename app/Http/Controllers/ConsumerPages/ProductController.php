@@ -26,13 +26,36 @@ class ProductController extends Controller
             'pages' => 0
         ];
         try {
-            $page = ($request->input('page') ?? 0) * 10;
+            $take = 10;
+            $page = ($request->input('page') ?? 0) * $take;
             $main_query = ProductsModel::query();
-            if ($request->input('category_id')) {
+            // ------------ search by category ---------------
+            if ($request->input('category_id') ? ($request->input('category_id') == 0 ? false : true) : false) {
                 $main_query->where('category_id', $request->input('category_id'));
             }
-            $pages = $main_query->count() / 10;
-            $main_query->skip($page)->take(10);
+            // -------------- search by work with full text search ---------------
+            if ($request->input('search_by')) {
+                $search = $request->input('search_by');
+                $main_query->whereRaw("MATCH(product_name) AGAINST(? IN BOOLEAN MODE)", ["$search*"]);
+                // $main_query->where('product_name','LIKE',"%{$search}%");
+            }
+            // ------------ search by price tag ----------------
+            $price_filters=$request->input('price_filter',[]);
+            if(count($price_filters)==2){
+                if($price_filters[0]==="between"){
+                    $main_query->whereBetween('purchase_price',config("globalConfig.price_filters.$price_filters[0].$price_filters[1]"));
+                }else{
+                    $filter_key=$price_filters[0] === "less" ?'<' :'>';
+                    $main_query->where('purchase_price',$filter_key,config("globalConfig.price_filters.$price_filters[0].$price_filters[1]"));
+                }
+            }
+            $pages = $main_query->count() / $take;
+            $res_data['total_products'] = $main_query->count();
+            //if necessary retrive category wise data
+            // $main_query->groupBy('category_id')
+            // ->selectRaw('category_id');
+
+            $main_query->skip($page)->take($take);
             $products = $main_query->get();
             $products->transform(function ($product) {
                 $product->enabledEncryption();
@@ -42,6 +65,7 @@ class ProductController extends Controller
             $res_data['pages'] = intval($pages);
         } catch (Exception $err) {
             $res_data['message'] = "Server error please try later !";
+            $res_data['message'] = $err->getMessage();
         }
         return response()->json(['res_data' => $res_data]);
     }
@@ -170,7 +194,7 @@ class ProductController extends Controller
             'message' => null,
             'status' => 400,
             'is_confirmation' => false,
-            'is_error'=>true
+            'is_error' => true
         ];
         $incomming_inputs = [
             'orders' => ['required', 'array'],
@@ -225,7 +249,7 @@ class ProductController extends Controller
                             }
                         }
                         $res_data['stock_report'] = $restrick_orders;
-                        $res_data['is_error']=false;
+                        $res_data['is_error'] = false;
                     } else {
                         $res_data['message'] = "Orders matched each one ! ";
                         $res_data['status'] = 401;
@@ -235,7 +259,7 @@ class ProductController extends Controller
                     $res_data['message'] = $err->getMessage();
                 }
                 // -------------- process update data queries ---------------
-                if (!$res_data['is_error'] ? ($res_data['is_confirmation'] ? (count($process_orders) == 0 ? false : true) : true): false) {
+                if (!$res_data['is_error'] ? ($res_data['is_confirmation'] ? (count($process_orders) == 0 ? false : true) : true) : false) {
                     try {
                         DB::beginTransaction();
                         // ---------- update user add order table data --------------
@@ -253,8 +277,8 @@ class ProductController extends Controller
                         [$sql, $update_out_of_stock] = ProductHelper::generateQuery($out_of_stock_sql, $update_out_of_stock['primary_ids'], $update_out_of_stock, '');
                         DB::update("UPDATE products SET out_of_stock $sql", $update_out_of_stock['case_values']);
                         DB::commit();
-                        $res_data['message']="Process done";
-                        $res_data['status']=200;
+                        $res_data['message'] = "Process done";
+                        $res_data['status'] = 200;
                     } catch (Exception $err) {
                         DB::rollBack();
                         $res_data['status'] = 401;
